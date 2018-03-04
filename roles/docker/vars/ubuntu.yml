@@ -1,32 +1,75 @@
 ---
 docker_kernel_min_version: '3.10'
 
+docker_apt_repo:
+  apt.dockerproject.org:
+    deb: >
+       deb {{ docker_apt_repo_base_url }}
+       {{ ansible_distribution|lower }}-{{ ansible_distribution_release|lower }}
+       main
+    gpgkey_url: '{{ docker_apt_repo_gpgkey }}'
+    gpgkey: 58118E89F3A912897C070ADBF76221572C52609D
+    package: docker-engine
+  download.docker.com:
+    deb: >
+       deb {{ docker_apt_repo_new_base_url }}
+       {{ ansible_distribution_release|lower }}
+       stable
+    gpgkey_url: '{{ docker_apt_repo_new_gpgkey }}'
+    gpgkey: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+    package: docker-ce
+
 # https://apt.dockerproject.org/repo/dists/ubuntu-xenial/main/filelist
 docker_versioned_pkg:
-  'latest': docker-engine
-  '1.11': docker-engine=1.11.2-0~{{ ansible_distribution_release|lower }}
-  '1.12': docker-engine=1.12.6-0~{{ ansible_distribution|lower }}-{{ ansible_distribution_release|lower }}
-  '1.13': docker-engine=1.13.1-0~{{ ansible_distribution|lower }}-{{ ansible_distribution_release|lower }}
-  '17.03': docker-engine=17.03.1~ce-0~{{ ansible_distribution|lower }}-{{ ansible_distribution_release|lower }}
-  'stable': docker-engine=17.03.1~ce-0~{{ ansible_distribution|lower }}-{{ ansible_distribution_release|lower }}
-  'edge': docker-engine=17.05.0~ce-0~{{ ansible_distribution|lower }}-{{ ansible_distribution_release|lower }}
+  'latest':
+    apt_repo: apt.dockerproject.com
+    version: '*'
+  '1.11':
+    apt_repo: apt.dockerproject.com
+    version: 1.11.2-0~{{ ansible_distribution_release|lower }}
+  '1.12':
+    apt_repo: apt.dockerproject.com
+    version: 1.12.6-0~{{ ansible_distribution|lower }}-{{ ansible_distribution_release|lower }}
+  '1.13':
+    apt_repo: apt.dockerproject.com
+    version: 1.13.1-0~{{ ansible_distribution|lower }}-{{ ansible_distribution_release|lower }}
+  '17.03':
+    apt_repo: apt.dockerproject.com
+    version: 17.03.1~ce-0~{{ ansible_distribution|lower }}-{{ ansible_distribution_release|lower }}
+  '17.06':
+    apt_repo: download.docker.com
+    version: 17.06.2~ce-0~{{ ansible_distribution|lower }}
+  '17.09':
+    apt_repo: download.docker.com
+    version: 17.09.1~ce-0~{{ ansible_distribution|lower }}
+  '17.12':
+    apt_repo: download.docker.com
+    version: 17.12.1~ce-0~{{ ansible_distribution|lower }}
+  'stable':
+    apt_repo: apt.dockerproject.com
+    version: 17.03.1~ce-0~{{ ansible_distribution|lower }}-{{ ansible_distribution_release|lower }}
+  'edge':
+    apt_repo: apt.dockerproject.com
+    version: 17.05.0~ce-0~{{ ansible_distribution|lower }}-{{ ansible_distribution_release|lower }}
 
 docker_package_info:
-  pkg_mgr: apt
+  pkg_mgr: '{{ ansible_pkg_mgr }}'
   pkgs:
-    - name: "{{ docker_versioned_pkg[docker_version | string] }}"
+    - name: '{{ docker_versioned_pkg[item.apt_repo].package }}={{ item.version }}'
       force: yes
+  with_nested:
+    - '{{ docker_versioned_pkg[docker_version|string] }}'
 
 docker_repo_key_info:
   pkg_key: apt_key
-  url: '{{ docker_apt_repo_gpgkey }}'
+  url: '{{ item.gpgkey_url }}'
   repo_keys:
-    - 58118E89F3A912897C070ADBF76221572C52609D
+    - '{{ item.gpgkey }}'
+  with_items:
+    - '{{ docker_apt_repo[docker_versioned_pkg[docker_version|string].apt_repo] }}'
 
 docker_repo_info:
   pkg_repo: apt_repository
   repos:
-    - >
-       deb {{ docker_apt_repo_base_url }}
-       {{ ansible_distribution|lower }}-{{ ansible_distribution_release|lower }}
-       main
+    - '{{ docker_apt_repo[docker_versioned_pkg[docker_version | string].apt_repo].deb }}'
+

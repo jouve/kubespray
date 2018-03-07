@@ -29,7 +29,7 @@
   service:
     name: docker.socket
     state: restarted
-  when: ansible_os_family in ['CoreOS', 'Container Linux by CoreOS']
+  when: is_coreos
 
 - name: Flannel | configure docker live-restore true (atomic)
   replace:

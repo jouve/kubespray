@@ -6,7 +6,7 @@
 - name: Force binaries directory for Container Linux by CoreOS
   set_fact:
     bin_dir: "/opt/bin"
-  when: ansible_os_family in ["CoreOS", "Container Linux by CoreOS"]
+  when: is_coreos
   tags:
     - facts
 
@@ -191,7 +191,7 @@
   retries: 4
   delay: "{{ retry_stagger | random + 3 }}"
   with_items: "{{required_pkgs | default([]) | union(common_required_pkgs|default([]))}}"
-  when: not (ansible_os_family in ["CoreOS", "Container Linux by CoreOS"] or is_atomic)
+  when: not (is_coreos or is_atomic)
   tags:
     - bootstrap-os
 
@@ -221,7 +221,7 @@
     backup: yes
   when:
     - disable_ipv6_dns
-    - not ansible_os_family in ["CoreOS", "Container Linux by CoreOS"]
+    - not is_coreos
   tags:
     - bootstrap-os
 
@@ -279,7 +279,7 @@
   when:
     - dns_mode != 'none'
     - resolvconf_mode == 'host_resolvconf'
-    - not ansible_os_family in ["CoreOS", "Container Linux by CoreOS"]
+    - not is_coreos
   tags:
     - bootstrap-os
     - resolvconf
@@ -288,7 +288,7 @@
   when:
     - dns_mode != 'none'
     - resolvconf_mode != 'host_resolvconf'
-    - not ansible_os_family in ["CoreOS", "Container Linux by CoreOS"]
+    - not is_coreos
   tags:
     - bootstrap-os
     - resolvconf

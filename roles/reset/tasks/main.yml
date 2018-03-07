@@ -203,7 +203,7 @@
       networking
       {%- endif %}
     state: restarted
-  when: ansible_os_family not in ["CoreOS", "Container Linux by CoreOS"] and reset_restart_network
+  when: is_coreos and reset_restart_network
   tags:
     - services
     - network

@@ -2,7 +2,7 @@
 - name: install | Set SSL CA directories
   set_fact:
     ssl_ca_dirs: "[
-      {% if ansible_os_family in ['CoreOS', 'Container Linux by CoreOS'] -%}
+      {% if is_coreos -%}
       '/usr/share/ca-certificates',
       {% elif ansible_os_family == 'RedHat' -%}
       '/etc/pki/tls',

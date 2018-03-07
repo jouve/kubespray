@@ -66,7 +66,7 @@
     - download.enabled
     - download.container
     - download_run_once
-    - (ansible_os_family not in ["CoreOS", "Container Linux by CoreOS"] or download_delegate == "localhost")
+    - (is_coreos or download_delegate == "localhost")
     - (container_changed or not img.stat.exists)
 
 - name: container_download | copy container images to ansible host
@@ -83,7 +83,7 @@
     - download.enabled
     - download.container
     - download_run_once
-    - ansible_os_family not in ["CoreOS", "Container Linux by CoreOS"]
+    - is_coreos
     - inventory_hostname == download_delegate
     - download_delegate != "localhost"
     - saved.changed
@@ -105,7 +105,7 @@
     - download.enabled
     - download.container
     - download_run_once
-    - (ansible_os_family not in ["CoreOS", "Container Linux by CoreOS"] and
+    - (is_coreos and
       inventory_hostname != download_delegate or
       download_delegate == "localhost")
   tags:
@@ -118,7 +118,7 @@
     - download.enabled
     - download.container
     - download_run_once
-    - (ansible_os_family not in ["CoreOS", "Container Linux by CoreOS"] and
+    - (is_coreos and
       inventory_hostname != download_delegate or download_delegate == "localhost")
   tags:
     - upload

@@ -13,7 +13,7 @@
       /usr/local/share/ca-certificates/vault-ca.crt
       {%- elif ansible_os_family == "RedHat" -%}
       /etc/pki/ca-trust/source/anchors/vault-ca.crt
-      {%- elif ansible_os_family in ["CoreOS", "Container Linux by CoreOS"] -%}
+      {%- elif is_coreos -%}
       /etc/ssl/certs/vault-ca.pem
       {%- endif %}
 

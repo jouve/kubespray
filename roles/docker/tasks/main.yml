@@ -26,7 +26,7 @@
           docker requires a minimum kernel version of
           {{ docker_kernel_min_version }} on
           {{ ansible_distribution }}-{{ ansible_distribution_version }}
-  when: (not ansible_os_family in ["CoreOS", "Container Linux by CoreOS"]) and (ansible_kernel|version_compare(docker_kernel_min_version, "<"))
+  when: (not is_coreos) and (ansible_kernel|version_compare(docker_kernel_min_version, "<"))
   tags:
     - facts
 
@@ -41,7 +41,7 @@
   retries: 4
   delay: "{{ retry_stagger | random + 3 }}"
   with_items: "{{ docker_repo_key_info.repo_keys }}"
-  when: not (ansible_os_family in ["CoreOS", "Container Linux by CoreOS"] or is_atomic)
+  when: not (is_coreos or is_atomic)
 
 - name: ensure docker repository is enabled
   action: "{{ docker_repo_info.pkg_repo }}"
@@ -49,7 +49,7 @@
     repo: "{{item}}"
     state: present
   with_items: "{{ docker_repo_info.repos }}"
-  when: not (ansible_os_family in ["CoreOS", "Container Linux by CoreOS"] or is_atomic) and (docker_repo_info.repos|length > 0)
+  when: not (is_coreos or is_atomic) and (docker_repo_info.repos|length > 0)
 
 - name: Configure docker repository on RedHat/CentOS
   template:
@@ -69,7 +69,7 @@
   delay: "{{ retry_stagger | random + 3 }}"
   with_items: "{{ docker_package_info.pkgs }}"
   notify: restart docker
-  when: not (ansible_os_family in ["CoreOS", "Container Linux by CoreOS"] or is_atomic) and (docker_package_info.pkgs|length > 0)
+  when: not (is_coreos or is_atomic) and (docker_package_info.pkgs|length > 0)
 
 - name: flush handlers so we can wait for docker to come up
   meta: flush_handlers

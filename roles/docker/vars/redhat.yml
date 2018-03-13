@@ -23,17 +23,7 @@ docker_selinux_versioned_pkg:
   'stable': docker-ce-selinux-17.03.2.ce-1.el7.centos
   'edge': docker-ce-selinux-17.03.2.ce-1.el7.centos
 
-
 docker_package_info:
-  pkg_mgr: yum
   pkgs:
-    - name: "{{ docker_selinux_versioned_pkg[docker_selinux_version | string] }}"
-    - name: "{{ docker_versioned_pkg[docker_version | string] }}"
-
-docker_repo_key_info:
-  pkg_key: ''
-  repo_keys: []
-
-docker_repo_info:
-  pkg_repo: ''
-  repos: []
+    - "{{ docker_selinux_versioned_pkg[docker_selinux_version | string] }}"
+    - "{{ docker_versioned_pkg[docker_version | string] }}"
